@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useCollege } from '@/context/college-context';
 import { getCourses } from '@/lib/services/courses';
 import { getWorkshopsForCollege } from '@/lib/services/workshops';
 import { Course, Workshop, FilterOptions } from '@/types/database';
+import { MOCK_COURSES, MOCK_WORKSHOPS } from '@/lib/mock-data';
 import { CourseGrid } from '@/components/courses/course-grid';
 import { WorkshopCard } from '@/components/courses/workshop-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,16 +27,15 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 
-function CoursesContent() {
-  const searchParams = useSearchParams();
+export default function CoursesPage() {
   const { selectedCollege, openCollegeModal } = useCollege();
 
   // Active view tab: courses or campus workshops
   const [activeTab, setActiveTab] = useState<'courses' | 'workshops'>('courses');
 
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [workshops, setWorkshops] = useState<Workshop[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
+  const [workshops, setWorkshops] = useState<Workshop[]>(MOCK_WORKSHOPS);
+  const [loading, setLoading] = useState(false);
 
   // Filters
   const [search, setSearch] = useState('');
@@ -47,11 +46,14 @@ function CoursesContent() {
 
   // Sync tab with URL if present
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'workshops' || tabParam === 'courses') {
-      setActiveTab(tabParam);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'workshops' || tabParam === 'courses') {
+        setActiveTab(tabParam);
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -373,25 +375,5 @@ function CoursesContent() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function CoursesPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-12 w-full rounded-2xl" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <Skeleton className="h-64 w-full rounded-2xl" />
-            <Skeleton className="h-64 w-full rounded-2xl" />
-            <Skeleton className="h-64 w-full rounded-2xl" />
-          </div>
-        </div>
-      }
-    >
-      <CoursesContent />
-    </Suspense>
   );
 }

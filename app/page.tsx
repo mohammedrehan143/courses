@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCollege } from '@/context/college-context';
 import { College } from '@/types/database';
@@ -54,8 +55,6 @@ export default function HomePage() {
     setHighlightedCollege(college);
     setSearchQuery(college.name);
     setIsOpen(false);
-    // Directly move to the courses menu page with selected college benefits
-    router.push('/courses');
   };
 
   const handleProceed = () => {
@@ -67,7 +66,6 @@ export default function HomePage() {
 
     if (target) {
       setSelectedCollege(target);
-      router.push('/courses');
     }
   };
 
@@ -76,8 +74,10 @@ export default function HomePage() {
       e.preventDefault();
       if (isOpen && filteredColleges.length > 0) {
         handleSelect(filteredColleges[0]);
+        router.push('/courses');
       } else {
         handleProceed();
+        router.push('/courses');
       }
     } else if (e.key === 'Escape') {
       setIsOpen(false);
@@ -157,10 +157,11 @@ export default function HomePage() {
                         (highlightedCollege && highlightedCollege.id === college.id);
                       const isBMSIT = college.short_name === 'BMSIT';
                       return (
-                        <div
+                        <Link
                           key={college.id}
+                          href="/courses"
                           onClick={() => handleSelect(college)}
-                          className={`px-4 py-3 rounded-xl cursor-pointer flex items-center justify-between text-xs transition ${
+                          className={`px-4 py-3 rounded-xl cursor-pointer flex items-center justify-between text-xs transition block ${
                             isSelected
                               ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 font-semibold'
                               : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -195,7 +196,7 @@ export default function HomePage() {
                               <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                             )}
                           </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>
@@ -205,22 +206,24 @@ export default function HomePage() {
           </div>
 
           {/* Primary Submit Button */}
-          <Button
-            onClick={handleProceed}
-            size="lg"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl py-4 text-sm shadow-md shadow-blue-500/20 gap-2"
-          >
-            <span>
-              {highlightedCollege
-                ? `Explore Courses & Workshops for ${highlightedCollege.short_name}`
-                : searchQuery.trim() && filteredColleges.length > 0
-                ? `Explore Courses for ${filteredColleges[0].short_name}`
-                : selectedCollege
-                ? `Explore Courses for ${selectedCollege.short_name}`
-                : 'Explore Courses & Campus Workshops'}
-            </span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <Link href="/courses" onClick={handleProceed} className="block w-full">
+            <Button
+              type="button"
+              size="lg"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl py-4 text-sm shadow-md shadow-blue-500/20 gap-2 cursor-pointer"
+            >
+              <span>
+                {highlightedCollege
+                  ? `Explore Courses & Workshops for ${highlightedCollege.short_name}`
+                  : searchQuery.trim() && filteredColleges.length > 0
+                  ? `Explore Courses for ${filteredColleges[0].short_name}`
+                  : selectedCollege
+                  ? `Explore Courses for ${selectedCollege.short_name}`
+                  : 'Explore Courses & Campus Workshops'}
+              </span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
 
           {/* Quick info under selector */}
           <div className="flex items-center justify-center gap-6 text-[11px] text-slate-400 pt-2">
