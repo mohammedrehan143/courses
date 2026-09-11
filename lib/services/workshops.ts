@@ -10,13 +10,15 @@ const isDemo = () => {
 let localWorkshops = [...MOCK_WORKSHOPS];
 
 export async function getWorkshopsForCollege(collegeId?: string): Promise<Workshop[]> {
-  if (isDemo()) {
+  const getLocal = () => {
     if (!collegeId) return localWorkshops.filter((w) => w.is_active);
-    
-    // Return workshops for this specific college + any global
     return localWorkshops.filter(
       (w) => w.is_active && (w.college_id === collegeId || !w.college_id)
     );
+  };
+
+  if (isDemo()) {
+    return getLocal();
   }
 
   try {
@@ -29,11 +31,11 @@ export async function getWorkshopsForCollege(collegeId?: string): Promise<Worksh
 
     const { data, error } = await query;
     if (error || !data || data.length === 0) {
-      return getWorkshopsForCollege(collegeId);
+      return getLocal();
     }
     return data as Workshop[];
   } catch {
-    return localWorkshops;
+    return getLocal();
   }
 }
 

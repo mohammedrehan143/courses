@@ -30,12 +30,9 @@ import {
 function CoursesContent() {
   const searchParams = useSearchParams();
   const { selectedCollege, openCollegeModal } = useCollege();
-  const [isPending, startTransition] = useTransition();
 
   // Active view tab: courses or campus workshops
-  const [activeTab, setActiveTab] = useState<'courses' | 'workshops'>(
-    (searchParams.get('tab') as 'courses' | 'workshops') || 'courses'
-  );
+  const [activeTab, setActiveTab] = useState<'courses' | 'workshops'>('courses');
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -48,7 +45,16 @@ function CoursesContent() {
   const [levelFilter, setLevelFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'title_asc'>('newest');
 
+  // Sync tab with URL if present
   useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'workshops' || tabParam === 'courses') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    let isMounted = true;
     async function fetchData() {
       setLoading(true);
       try {
@@ -59,18 +65,24 @@ function CoursesContent() {
           }),
           getWorkshopsForCollege(selectedCollege?.id),
         ]);
-        setCourses(courseRes.courses);
-        setWorkshops(workshopRes);
+        if (isMounted) {
+          setCourses(courseRes?.courses || []);
+          setWorkshops(workshopRes || []);
+        }
       } catch (err) {
         console.error('Error fetching data', err);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
-    startTransition(() => {
-      fetchData();
-    });
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [selectedCollege]);
 
   // Filter courses
@@ -345,7 +357,7 @@ function CoursesContent() {
             <div className="text-center py-16 px-4 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 space-y-3">
               <Calendar className="w-12 h-12 mx-auto text-slate-300" />
               <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
-                No workshops matching your search for {selectedCollege?.short_name}
+                No workshops matching your search for {selectedCollege?.short_name || 'your college'}
               </h3>
               <p className="text-xs text-slate-500">
                 Check back regularly for department announcements and hackathon schedules.

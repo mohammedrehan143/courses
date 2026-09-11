@@ -134,7 +134,7 @@ export function ClaimModal({ course, isOpen, onClose }: ClaimModalProps) {
           <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 pt-2">
             <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              You will be redirected to the official website of {course.provider}. No payment is requested on EduPass.
+              You will be redirected to the official website of {course.provider}. No payment is requested on CoSurf.
             </span>
           </div>
         </div>

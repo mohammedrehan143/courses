@@ -22,20 +22,21 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [highlightedCollege, setHighlightedCollege] = useState<College | null>(
-    selectedCollege || colleges[0] || null
-  );
+  const [highlightedCollege, setHighlightedCollege] = useState<College | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Filter colleges based on user input
-  const filteredColleges = colleges.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.short_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.location && c.location.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredColleges = colleges.filter((c) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      c.name.toLowerCase().includes(q) ||
+      c.short_name.toLowerCase().includes(q) ||
+      c.domain.toLowerCase().includes(q) ||
+      (c.location && c.location.toLowerCase().includes(q))
+    );
+  });
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -49,14 +50,21 @@ export default function HomePage() {
   }, []);
 
   const handleSelect = (college: College) => {
-    setHighlightedCollege(college);
     setSelectedCollege(college);
+    setHighlightedCollege(college);
     setSearchQuery(college.name);
     setIsOpen(false);
+    // Directly move to the courses menu page with selected college benefits
+    router.push('/courses');
   };
 
   const handleProceed = () => {
-    const target = highlightedCollege || selectedCollege || colleges[0];
+    const target =
+      highlightedCollege ||
+      (searchQuery.trim() && filteredColleges.length > 0 ? filteredColleges[0] : null) ||
+      selectedCollege ||
+      colleges[0];
+
     if (target) {
       setSelectedCollege(target);
       router.push('/courses');
@@ -65,6 +73,7 @@ export default function HomePage() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       if (isOpen && filteredColleges.length > 0) {
         handleSelect(filteredColleges[0]);
       } else {
@@ -104,16 +113,16 @@ export default function HomePage() {
               <input
                 type="text"
                 placeholder="Search or select your college (e.g. BMSIT, Stanford, MIT)..."
-                value={searchQuery || (highlightedCollege ? `${highlightedCollege.name} (${highlightedCollege.short_name})` : '')}
+                value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setIsOpen(true);
                 }}
                 onFocus={() => {
                   setIsOpen(true);
-                  if (highlightedCollege && !searchQuery) {
-                    setSearchQuery('');
-                  }
+                }}
+                onClick={() => {
+                  setIsOpen(true);
                 }}
                 onKeyDown={handleKeyDown}
                 className="w-full pl-12 pr-12 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 focus:border-blue-600 dark:focus:border-blue-500 rounded-2xl text-sm font-medium focus:outline-none shadow-lg shadow-slate-100 dark:shadow-none text-slate-900 dark:text-white transition"
@@ -122,15 +131,20 @@ export default function HomePage() {
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                title="Toggle college list"
+                title="Toggle college suggestions"
               >
                 <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
               </button>
             </div>
 
-            {/* Dropdown Options List */}
+            {/* Dropdown Suggestions List */}
             {isOpen && (
               <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden max-h-72 overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                  <span>Suggested Colleges</span>
+                  <span>Click to Explore</span>
+                </div>
+
                 {filteredColleges.length === 0 ? (
                   <div className="p-4 text-center text-xs text-slate-500">
                     No matching college found. Try typing &quot;BMSIT&quot; or &quot;Stanford&quot;.
@@ -139,8 +153,8 @@ export default function HomePage() {
                   <div className="p-1.5 space-y-1">
                     {filteredColleges.map((college) => {
                       const isSelected =
-                        highlightedCollege?.id === college.id ||
-                        selectedCollege?.id === college.id;
+                        (selectedCollege && selectedCollege.id === college.id) ||
+                        (highlightedCollege && highlightedCollege.id === college.id);
                       const isBMSIT = college.short_name === 'BMSIT';
                       return (
                         <div
@@ -157,9 +171,13 @@ export default function HomePage() {
                               <span className="font-bold text-sm text-slate-900 dark:text-white">
                                 {college.name}
                               </span>
-                              {isBMSIT && (
+                              {isBMSIT ? (
                                 <span className="px-1.5 py-0.2 rounded text-[10px] bg-blue-600 text-white font-bold">
-                                  BMSIT
+                                  BMSIT • Featured
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">
+                                  {college.short_name}
                                 </span>
                               )}
                             </div>
@@ -169,9 +187,14 @@ export default function HomePage() {
                             </div>
                           </div>
 
-                          {isSelected && (
-                            <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                          )}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium hidden sm:inline">
+                              View 13 Courses →
+                            </span>
+                            {isSelected && (
+                              <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                            )}
+                          </div>
                         </div>
                       );
                     })}
@@ -188,8 +211,13 @@ export default function HomePage() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl py-4 text-sm shadow-md shadow-blue-500/20 gap-2"
           >
             <span>
-              Explore Courses &amp; Workshops for{' '}
-              {highlightedCollege?.short_name || 'Your College'}
+              {highlightedCollege
+                ? `Explore Courses & Workshops for ${highlightedCollege.short_name}`
+                : searchQuery.trim() && filteredColleges.length > 0
+                ? `Explore Courses for ${filteredColleges[0].short_name}`
+                : selectedCollege
+                ? `Explore Courses for ${selectedCollege.short_name}`
+                : 'Explore Courses & Campus Workshops'}
             </span>
             <ArrowRight className="w-4 h-4" />
           </Button>

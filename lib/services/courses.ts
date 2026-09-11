@@ -9,7 +9,7 @@ const isDemo = () => {
 
 let localCourses = [...MOCK_COURSES];
 
-export async function getCourses(options: FilterOptions = {}): Promise<{ courses: Course[]; total: number }> {
+function getLocalCoursesFiltered(options: FilterOptions = {}): { courses: Course[]; total: number } {
   const {
     search,
     category,
@@ -23,83 +23,88 @@ export async function getCourses(options: FilterOptions = {}): Promise<{ courses
     limit = 100,
   } = options;
 
+  let result = [...localCourses].filter((c) => c.is_active);
+
+  // Filter by college mapping if collegeId provided
+  if (collegeId && MOCK_COLLEGE_COURSES[collegeId]) {
+    const collegeMappings = MOCK_COLLEGE_COURSES[collegeId];
+    const mappingMap = new Map(collegeMappings.map((m) => [m.course_id, m]));
+
+    result = result
+      .filter((c) => mappingMap.has(c.id))
+      .map((c) => {
+        const mapping = mappingMap.get(c.id)!;
+        return {
+          ...c,
+          access_type: mapping.access_type,
+          special_instructions: mapping.special_instructions,
+        };
+      });
+  }
+
+  // Search filter
+  if (search && search.trim()) {
+    const q = search.toLowerCase().trim();
+    result = result.filter(
+      (c) =>
+        c.title.toLowerCase().includes(q) ||
+        c.provider.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q) ||
+        c.category.toLowerCase().includes(q) ||
+        c.skills_gained?.some((s) => s.toLowerCase().includes(q)) ||
+        c.what_you_learn?.some((w) => w.toLowerCase().includes(q))
+    );
+  }
+
+  // Category filter
+  if (category && category !== 'all') {
+    result = result.filter(
+      (c) =>
+        c.category.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase() ||
+        c.category.toLowerCase() === category.toLowerCase()
+    );
+  }
+
+  // Level filter
+  if (level && level !== 'all') {
+    result = result.filter((c) => c.level.toLowerCase() === level.toLowerCase());
+  }
+
+  // Provider filter
+  if (provider && provider !== 'all') {
+    result = result.filter((c) => c.provider.toLowerCase() === provider.toLowerCase());
+  }
+
+  // Access type filter
+  if (accessType && accessType !== 'all') {
+    result = result.filter((c) => c.access_type === accessType);
+  }
+
+  // Certification filter
+  if (certificationOnly) {
+    result = result.filter((c) => c.certification_available);
+  }
+
+  // Sorting
+  if (sortBy === 'popular') {
+    result.sort((a, b) => (b.click_count || 0) - (a.click_count || 0));
+  } else if (sortBy === 'title_asc') {
+    result.sort((a, b) => a.title.localeCompare(b.title));
+  } else {
+    // Default: newest
+    result.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+  }
+
+  const total = result.length;
+  const startIndex = (page - 1) * limit;
+  const paginated = result.slice(startIndex, startIndex + limit);
+
+  return { courses: paginated, total };
+}
+
+export async function getCourses(options: FilterOptions = {}): Promise<{ courses: Course[]; total: number }> {
   if (isDemo()) {
-    let result = [...localCourses].filter((c) => c.is_active);
-
-    // Filter by college mapping if collegeId provided
-    if (collegeId && MOCK_COLLEGE_COURSES[collegeId]) {
-      const collegeMappings = MOCK_COLLEGE_COURSES[collegeId];
-      const mappingMap = new Map(collegeMappings.map((m) => [m.course_id, m]));
-
-      result = result
-        .filter((c) => mappingMap.has(c.id))
-        .map((c) => {
-          const mapping = mappingMap.get(c.id)!;
-          return {
-            ...c,
-            access_type: mapping.access_type,
-            special_instructions: mapping.special_instructions,
-          };
-        });
-    }
-
-    // Search filter
-    if (search && search.trim()) {
-      const q = search.toLowerCase().trim();
-      result = result.filter(
-        (c) =>
-          c.title.toLowerCase().includes(q) ||
-          c.provider.toLowerCase().includes(q) ||
-          c.description.toLowerCase().includes(q) ||
-          c.category.toLowerCase().includes(q) ||
-          c.skills_gained?.some((s) => s.toLowerCase().includes(q)) ||
-          c.what_you_learn?.some((w) => w.toLowerCase().includes(q))
-      );
-    }
-
-    // Category filter
-    if (category && category !== 'all') {
-      result = result.filter(
-        (c) => c.category.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase() ||
-               c.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
-    // Level filter
-    if (level && level !== 'all') {
-      result = result.filter((c) => c.level.toLowerCase() === level.toLowerCase());
-    }
-
-    // Provider filter
-    if (provider && provider !== 'all') {
-      result = result.filter((c) => c.provider.toLowerCase() === provider.toLowerCase());
-    }
-
-    // Access type filter
-    if (accessType && accessType !== 'all') {
-      result = result.filter((c) => c.access_type === accessType);
-    }
-
-    // Certification filter
-    if (certificationOnly) {
-      result = result.filter((c) => c.certification_available);
-    }
-
-    // Sorting
-    if (sortBy === 'popular') {
-      result.sort((a, b) => (b.click_count || 0) - (a.click_count || 0));
-    } else if (sortBy === 'title_asc') {
-      result.sort((a, b) => a.title.localeCompare(b.title));
-    } else {
-      // Default: newest
-      result.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
-    }
-
-    const total = result.length;
-    const startIndex = (page - 1) * limit;
-    const paginated = result.slice(startIndex, startIndex + limit);
-
-    return { courses: paginated, total };
+    return getLocalCoursesFiltered(options);
   }
 
   try {
@@ -108,27 +113,27 @@ export async function getCourses(options: FilterOptions = {}): Promise<{ courses
 
     query = query.eq('is_active', true);
 
-    if (category && category !== 'all') {
-      query = query.ilike('category', `%${category}%`);
+    if (options.category && options.category !== 'all') {
+      query = query.ilike('category', `%${options.category}%`);
     }
 
-    if (level && level !== 'all') {
-      query = query.eq('level', level);
+    if (options.level && options.level !== 'all') {
+      query = query.eq('level', options.level);
     }
 
-    if (provider && provider !== 'all') {
-      query = query.eq('provider', provider);
+    if (options.provider && options.provider !== 'all') {
+      query = query.eq('provider', options.provider);
     }
 
-    if (certificationOnly) {
+    if (options.certificationOnly) {
       query = query.eq('certification_available', true);
     }
 
-    if (search && search.trim()) {
-      query = query.or(`title.ilike.%${search}%,provider.ilike.%${search}%,description.ilike.%${search}%`);
+    if (options.search && options.search.trim()) {
+      query = query.or(`title.ilike.%${options.search}%,provider.ilike.%${options.search}%,description.ilike.%${options.search}%`);
     }
 
-    if (sortBy === 'title_asc') {
+    if (options.sortBy === 'title_asc') {
       query = query.order('title', { ascending: true });
     } else {
       query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
@@ -137,12 +142,12 @@ export async function getCourses(options: FilterOptions = {}): Promise<{ courses
     const { data, count, error } = await query;
 
     if (error || !data || data.length === 0) {
-      return getCourses({ ...options, sortBy: options.sortBy });
+      return getLocalCoursesFiltered(options);
     }
 
     return { courses: data as Course[], total: count || data.length };
   } catch {
-    return { courses: localCourses, total: localCourses.length };
+    return getLocalCoursesFiltered(options);
   }
 }
 
