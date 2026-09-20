@@ -8,16 +8,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow hover:bg-blue-700 active:bg-blue-800",
+          "bg-[#0a192f] text-white shadow hover:bg-[#132c54] active:bg-[#081426]",
         destructive:
-          "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800",
+          "bg-rose-700 text-white shadow-sm hover:bg-rose-800",
         outline:
-          "border border-slate-200 bg-white text-slate-900 shadow-sm hover:bg-slate-50 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800",
+          "border border-slate-200 bg-white text-[#0a192f] shadow-sm hover:bg-slate-50 hover:border-[#0a192f]/40 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800",
         secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-200/80 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700",
-        ghost: "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100",
-        link: "text-blue-600 underline-offset-4 hover:underline dark:text-blue-400",
-        gradient: "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700",
+          "bg-slate-100 text-[#0a192f] hover:bg-slate-200/80 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700",
+        ghost: "hover:bg-slate-100 hover:text-[#0a192f] dark:hover:bg-slate-800 dark:hover:text-white",
+        link: "text-[#0a192f] underline-offset-4 hover:underline dark:text-blue-200",
+        gradient: "bg-[#0a192f] hover:bg-[#132c54] text-white shadow-md",
       },
       size: {
         default: "h-10 px-4 py-2",

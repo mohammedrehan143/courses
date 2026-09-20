@@ -88,8 +88,8 @@ export default function HomePage() {
     <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
       <div className="w-full max-w-2xl text-center space-y-8">
         {/* Top badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/70 border border-blue-200/80 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-semibold shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#0a192f] dark:text-slate-200 text-xs font-semibold shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-[#0a192f] animate-pulse" />
           <span>CoSurf • College Opportunities &amp; Campus Workshops</span>
         </div>
 
@@ -109,7 +109,7 @@ export default function HomePage() {
           <div className="relative">
             {/* Input Box with Icons */}
             <div className="relative flex items-center">
-              <School className="absolute left-4 w-5 h-5 text-blue-600 dark:text-blue-400 pointer-events-none" />
+              <School className="absolute left-4 w-5 h-5 text-[#0a192f] dark:text-slate-300 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search or select your college (e.g. BMSIT, Stanford, MIT)..."
@@ -125,7 +125,7 @@ export default function HomePage() {
                   setIsOpen(true);
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-12 pr-12 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 focus:border-blue-600 dark:focus:border-blue-500 rounded-2xl text-sm font-medium focus:outline-none shadow-lg shadow-slate-100 dark:shadow-none text-slate-900 dark:text-white transition"
+                className="w-full pl-12 pr-12 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 focus:border-[#0a192f] rounded-2xl text-sm font-medium focus:outline-none shadow-lg shadow-slate-100 dark:shadow-none text-slate-900 dark:text-white transition"
               />
               <button
                 type="button"
@@ -163,37 +163,37 @@ export default function HomePage() {
                           onClick={() => handleSelect(college)}
                           className={`px-4 py-3 rounded-xl cursor-pointer flex items-center justify-between text-xs transition block ${
                             isSelected
-                              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 font-semibold'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                              ? 'bg-[#0a192f] text-white font-semibold'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'
                           }`}
                         >
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm text-slate-900 dark:text-white">
+                              <span className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                                 {college.name}
                               </span>
                               {isBMSIT ? (
-                                <span className="px-1.5 py-0.2 rounded text-[10px] bg-blue-600 text-white font-bold">
+                                <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${isSelected ? 'bg-white text-[#0a192f]' : 'bg-[#0a192f] text-white'}`}>
                                   BMSIT • Featured
                                 </span>
                               ) : (
-                                <span className="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">
+                                <span className={`px-1.5 py-0.2 rounded text-[10px] font-semibold ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                                   {college.short_name}
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                            <div className={`flex items-center gap-2 text-[11px] ${isSelected ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
                               <span className="font-mono">@{college.domain}</span>
                               {college.location && <span>• {college.location}</span>}
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium hidden sm:inline">
+                            <span className={`text-[11px] font-medium hidden sm:inline ${isSelected ? 'text-white' : 'text-[#0a192f] dark:text-blue-300'}`}>
                               View 13 Courses →
                             </span>
                             {isSelected && (
-                              <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                              <Check className="w-4 h-4 text-white flex-shrink-0" />
                             )}
                           </div>
                         </Link>
@@ -210,7 +210,7 @@ export default function HomePage() {
             <Button
               type="button"
               size="lg"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl py-4 text-sm shadow-md shadow-blue-500/20 gap-2 cursor-pointer"
+              className="w-full bg-[#0a192f] hover:bg-[#132c54] text-white font-bold rounded-2xl py-4 text-sm shadow-md shadow-slate-900/20 gap-2 cursor-pointer"
             >
               <span>
                 {highlightedCollege
@@ -226,13 +226,13 @@ export default function HomePage() {
           </Link>
 
           {/* Quick info under selector */}
-          <div className="flex items-center justify-center gap-6 text-[11px] text-slate-400 pt-2">
+          <div className="flex items-center justify-center gap-6 text-[11px] text-slate-500 pt-2">
             <span className="flex items-center gap-1">
-              <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+              <BookOpen className="w-3.5 h-3.5 text-[#0a192f]" />
               13 Verified Free Courses
             </span>
             <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-purple-500" />
+              <Calendar className="w-3.5 h-3.5 text-[#0a192f]" />
               Live Campus Workshops
             </span>
           </div>

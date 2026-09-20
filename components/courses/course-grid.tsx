@@ -49,7 +49,7 @@ export function CourseGrid({ courses, loading, onResetFilters }: CourseGridProps
   if (courses.length === 0) {
     return (
       <div className="text-center py-16 px-4 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 my-4 shadow-sm">
-        <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-2xl bg-[#0a192f]/10 text-[#0a192f] dark:text-blue-300 flex items-center justify-center mx-auto mb-4">
           <SearchX className="w-8 h-8" />
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">

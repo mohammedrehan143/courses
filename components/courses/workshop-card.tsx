@@ -21,7 +21,7 @@ interface WorkshopCardProps {
 
 export function WorkshopCard({ workshop }: WorkshopCardProps) {
   return (
-    <div className="flex flex-col rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle hover:shadow-premium hover:border-blue-300 dark:hover:border-blue-700 transition-all p-6 justify-between space-y-4">
+    <div className="flex flex-col rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle hover:shadow-premium hover:border-[#0a192f]/40 transition-all p-6 justify-between space-y-4">
       <div className="space-y-3">
         {/* Top Badges */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -31,7 +31,7 @@ export function WorkshopCard({ workshop }: WorkshopCardProps) {
           >
             {workshop.mode} Workshop
           </Badge>
-          <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-900">
+          <span className="text-[11px] font-semibold text-[#0a192f] dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
             Campus Event
           </span>
         </div>
@@ -43,7 +43,7 @@ export function WorkshopCard({ workshop }: WorkshopCardProps) {
 
         {/* Organizer */}
         <p className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-          <School className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+          <School className="w-3.5 h-3.5 text-[#0a192f] flex-shrink-0" />
           <span>{workshop.organizer}</span>
         </p>
 
@@ -88,7 +88,7 @@ export function WorkshopCard({ workshop }: WorkshopCardProps) {
         <Button
           size="sm"
           onClick={() => window.open(workshop.registration_url || 'https://bmsit.in', '_blank')}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold gap-1.5 shadow-sm"
+          className="w-full bg-[#0a192f] hover:bg-[#132c54] text-white rounded-xl text-xs font-bold gap-1.5 shadow-sm"
         >
           <span>Register for Workshop</span>
           <ExternalLink className="w-3.5 h-3.5" />

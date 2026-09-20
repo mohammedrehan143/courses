@@ -70,9 +70,9 @@ export function ClaimModal({ course, isOpen, onClose }: ClaimModalProps) {
         {/* Content */}
         <div className="p-6 space-y-4 overflow-y-auto flex-1 text-sm">
           {/* Instructions Box */}
-          <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-              <Mail className="w-4 h-4 text-blue-600" />
+          <div className="p-4 rounded-2xl bg-[#0a192f]/5 dark:bg-slate-800/80 border border-[#0a192f]/20 dark:border-slate-700 space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#0a192f] dark:text-blue-300 flex items-center gap-1.5">
+              <Mail className="w-4 h-4 text-[#0a192f] dark:text-blue-300" />
               College Access Verification Steps
             </h4>
             <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -147,7 +147,7 @@ export function ClaimModal({ course, isOpen, onClose }: ClaimModalProps) {
           <Button
             size="sm"
             onClick={handleProceed}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-sm"
+            className="bg-[#0a192f] hover:bg-[#132c54] text-white font-semibold gap-2 shadow-sm"
           >
             <span>Continue to {course.provider}</span>
             <ExternalLink className="w-4 h-4" />
