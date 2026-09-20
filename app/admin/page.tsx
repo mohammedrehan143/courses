@@ -30,18 +30,22 @@ import {
   Users,
   MousePointerClick,
   Sparkles,
+  Layers,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { getUIProducts, getCreatorSubmissions } from '@/lib/services/marketplace';
+import { UIProduct, CreatorSubmission } from '@/types/marketplace';
 
 export default function AdminDashboardPage() {
   const { isAdmin, setAdminMode } = useAuth();
   const { colleges: contextColleges } = useCollege();
 
   // Navigation tab
-  const [activeTab, setActiveTab] = useState<'analytics' | 'courses' | 'colleges' | 'categories' | 'mappings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'courses' | 'colleges' | 'categories' | 'mappings' | 'marketplace'>('analytics');
 
   // Data states
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
@@ -49,6 +53,8 @@ export default function AdminDashboardPage() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [mappings, setMappings] = useState<CollegeCourse[]>([]);
+  const [uiProducts, setUiProducts] = useState<UIProduct[]>([]);
+  const [creatorSubmissions, setCreatorSubmissions] = useState<CreatorSubmission[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form modals / dialog states
@@ -99,18 +105,22 @@ export default function AdminDashboardPage() {
     async function loadAdminData() {
       setLoading(true);
       try {
-        const [analyticsData, coursesData, collegesData, catsData, mappingsData] = await Promise.all([
+        const [analyticsData, coursesData, collegesData, catsData, mappingsData, marketplaceData, submissionsData] = await Promise.all([
           getAdminAnalytics(),
           getCourses({ limit: 100 }),
           getAllCollegesForAdmin(),
           getCategories(),
           getCollegeCourses(),
+          getUIProducts({ limit: 100 }),
+          getCreatorSubmissions(),
         ]);
         setAnalytics(analyticsData);
         setCourses(coursesData.courses);
         setColleges(collegesData);
         setCategories(catsData);
         setMappings(mappingsData);
+        setUiProducts(marketplaceData.products);
+        setCreatorSubmissions(submissionsData);
         if (collegesData.length > 0 && coursesData.courses.length > 0) {
           setAssignFormData((prev) => ({
             ...prev,
@@ -309,6 +319,7 @@ export default function AdminDashboardPage() {
           { id: 'colleges', label: `Colleges (${colleges.length})`, icon: School },
           { id: 'mappings', label: `Access Mappings (${mappings.length})`, icon: LinkIcon },
           { id: 'categories', label: `Categories (${categories.length})`, icon: LayoutGrid },
+          { id: 'marketplace', label: `UI Marketplace (${uiProducts.length})`, icon: Layers },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -835,6 +846,203 @@ export default function AdminDashboardPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: UI MARKETPLACE & MODERATION */}
+      {activeTab === 'marketplace' && (
+        <div className="space-y-8 animate-in fade-in duration-200">
+          {/* Metrics summary */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-1">
+              <span className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-blue-600" /> UI Products
+              </span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                {uiProducts.length}
+              </p>
+              <span className="text-[11px] text-blue-600 font-medium">Published packages</span>
+            </div>
+
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-1">
+              <span className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" /> Total UI Sales
+              </span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                {uiProducts.reduce((acc, p) => acc + (p.sales_count || 0), 0).toLocaleString()}
+              </p>
+              <span className="text-[11px] text-emerald-600 font-medium">Developer purchases</span>
+            </div>
+
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-1">
+              <span className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-500" /> Submissions
+              </span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                {creatorSubmissions.length}
+              </p>
+              <span className="text-[11px] text-amber-600 font-medium">Awaiting moderation</span>
+            </div>
+
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-1">
+              <span className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Free Kits
+              </span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                {uiProducts.filter((p) => p.price === 0).length}
+              </p>
+              <span className="text-[11px] text-purple-600 font-medium">Open-access kits</span>
+            </div>
+          </div>
+
+          {/* Pending Submissions Moderation Queue */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-amber-500" />
+                  <span>Creator Submissions (Pending Review)</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Review submitted UI designs and AI implementation prompt packages before publishing.
+                </p>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {creatorSubmissions.length} Submissions
+              </Badge>
+            </div>
+
+            {creatorSubmissions.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-500">
+                No submissions currently waiting in the moderation queue.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {creatorSubmissions.map((sub) => (
+                  <div key={sub.id} className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm text-slate-900 dark:text-white">{sub.title}</h4>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 text-[10px] font-semibold border border-amber-200">
+                          {sub.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 line-clamp-1">{sub.description}</p>
+                      <div className="text-[11px] text-slate-400 flex items-center gap-3">
+                        <span>Creator: <strong>{sub.creator_name}</strong> ({sub.creator_email})</span>
+                        <span>•</span>
+                        <span>Price: ₹{sub.price}</span>
+                        <span>•</span>
+                        <span>Category: {sub.category}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setCreatorSubmissions((prev) =>
+                            prev.map((s) => (s.id === sub.id ? { ...s, status: 'approved' } : s))
+                          );
+                          toast.success(`Approved "${sub.title}"! Package published.`);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                        Approve & Publish
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          setCreatorSubmissions((prev) =>
+                            prev.map((s) => (s.id === sub.id ? { ...s, status: 'rejected' } : s))
+                          );
+                          toast.error(`Rejected "${sub.title}".`);
+                        }}
+                        className="text-xs font-semibold rounded-xl"
+                      >
+                        <XCircle className="w-3.5 h-3.5 mr-1" />
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Published Marketplace Products List */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  Live Marketplace Catalog ({uiProducts.length})
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Manage live prices, featured statuses, and active developer packages.
+                </p>
+              </div>
+              <Link href="/marketplace">
+                <Button size="sm" variant="outline" className="text-xs">
+                  View Public Marketplace
+                </Button>
+              </Link>
+            </div>
+
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {uiProducts.map((prod) => (
+                <div key={prod.id} className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative">
+                      <img src={prod.preview_image} alt={prod.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/marketplace/${prod.slug}`} className="font-bold text-sm text-slate-900 dark:text-white hover:underline">
+                          {prod.title}
+                        </Link>
+                        {prod.is_featured && (
+                          <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-slate-950 uppercase">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                        <span>{prod.category}</span>
+                        <span>•</span>
+                        <span>{prod.technologies.join(', ')}</span>
+                        <span>•</span>
+                        <span>Sales: <strong>{prod.sales_count}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-sm text-slate-900 dark:text-white">
+                      {prod.price === 0 ? 'Free' : `₹${prod.price}`}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const newPrice = prompt(`Enter new price in INR for "${prod.title}":`, prod.price.toString());
+                        if (newPrice !== null && !isNaN(parseFloat(newPrice))) {
+                          setUiProducts((prev) =>
+                            prev.map((p) => (p.id === prod.id ? { ...p, price: parseFloat(newPrice) } : p))
+                          );
+                          toast.success(`Price updated to ₹${newPrice}`);
+                        }
+                      }}
+                      className="text-xs"
+                    >
+                      Change Price
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

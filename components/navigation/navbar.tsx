@@ -18,6 +18,7 @@ import {
   LogOut,
   Sparkles,
   School,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CollegeModal } from './college-modal';
@@ -31,6 +32,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/courses', label: 'Explore Courses', icon: Compass },
+    { href: '/marketplace', label: 'UI Marketplace', icon: Layers, badge: 'AI' },
     { href: '/categories', label: 'Categories', icon: LayoutGrid },
     {
       href: '/saved',
@@ -100,6 +102,11 @@ export function Navbar() {
                 >
                   {Icon && <Icon className="w-4 h-4" />}
                   <span>{link.label}</span>
+                  {link.badge && (
+                    <span className="px-1.5 py-0.2 text-[9px] font-extrabold rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs">
+                      {link.badge}
+                    </span>
+                  )}
                   {link.count !== undefined && link.count > 0 && (
                     <span className="ml-0.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-[#0a192f] text-white">
                       {link.count}
@@ -225,7 +232,16 @@ export function Navbar() {
                         : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'
                     }`}
                   >
-                    <span>{link.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span>{link.label}</span>
+                      {link.badge && (
+                        <span className={`px-1.5 py-0.2 text-[9px] font-extrabold rounded-md ${
+                          active ? 'bg-white text-[#0a192f]' : 'bg-[#0a192f] text-white'
+                        }`}>
+                          {link.badge}
+                        </span>
+                      )}
+                    </div>
                     {link.count !== undefined && link.count > 0 && (
                       <span className={`px-2 py-0.5 text-xs rounded-full font-bold ${
                         active ? 'bg-white text-[#0a192f]' : 'bg-[#0a192f] text-white'

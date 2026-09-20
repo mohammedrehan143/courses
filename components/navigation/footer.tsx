@@ -56,6 +56,21 @@ export function Footer() {
                 My Bookmarked Courses
               </Link>
             </li>
+            <li className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800">
+              <Link href="/marketplace" className="hover:text-blue-600 font-medium transition text-blue-600 dark:text-blue-400">
+                UI Marketplace (AI Prompts)
+              </Link>
+            </li>
+            <li>
+              <Link href="/marketplace/sell" className="hover:text-blue-600 transition">
+                Sell Your UI
+              </Link>
+            </li>
+            <li>
+              <Link href="/marketplace/purchases" className="hover:text-blue-600 transition">
+                My UI Purchases
+              </Link>
+            </li>
           </ul>
         </div>
 

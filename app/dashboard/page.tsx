@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Flame,
   CheckCircle,
+  Layers,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -157,6 +158,38 @@ export default function StudentDashboardPage() {
           <span className="text-[11px] text-slate-500 font-medium block">
             Based on commercial voucher fees
           </span>
+        </div>
+      </div>
+
+      {/* UI Marketplace & AI Prompts Callout */}
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-950 to-[#0a192f] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-blue-300 shrink-0">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm text-white">UI Marketplace for AI Coding Agents</h3>
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-semibold border border-blue-400/30">
+                NEW SECTION
+              </span>
+            </div>
+            <p className="text-xs text-blue-200/80">
+              Discover production-ready developer UI designs with structured prompts for Claude Code, Cursor, and Antigravity.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 w-full md:w-auto">
+          <Link href="/marketplace" className="flex-1 md:flex-initial">
+            <Button size="sm" className="w-full bg-white text-[#0a192f] hover:bg-slate-100 text-xs font-semibold rounded-xl">
+              Browse Marketplace
+            </Button>
+          </Link>
+          <Link href="/marketplace/purchases" className="flex-1 md:flex-initial">
+            <Button size="sm" variant="outline" className="w-full border-white/30 text-white hover:bg-white/10 text-xs font-semibold rounded-xl">
+              My UI Purchases
+            </Button>
+          </Link>
         </div>
       </div>
 
